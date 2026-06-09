@@ -48,4 +48,36 @@ class HouseProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // Update a house
+  Future<void> updateHouse(House house) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _housesCollection.doc(house.id).update(house.toMap());
+      await fetchHouses(); // refresh the list
+    } catch (e) {
+      debugPrint('Error updating house: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Delete a house
+  Future<void> deleteHouse(String houseId) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _housesCollection.doc(houseId).delete();
+      await fetchHouses(); // refresh the list
+    } catch (e) {
+      debugPrint('Error deleting house: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

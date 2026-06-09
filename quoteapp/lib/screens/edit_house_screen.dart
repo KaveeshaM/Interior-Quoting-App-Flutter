@@ -59,11 +59,15 @@ class _EditHouseScreenState extends State<EditHouseScreen> {
           details: _detailsController.text.trim(),
         );
       } else {
-        // TODO: implement updateHouse
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Edit')));
-        return;
+        final updatedHouse = House(
+          id: widget.house!.id,
+          customerName: _customerNameController.text.trim(),
+          nickname: _nicknameController.text.trim(),
+          address: _addressController.text.trim(),
+          phoneNumber: _phoneController.text.trim(),
+          details: _detailsController.text.trim(),
+        );
+        await provider.updateHouse(updatedHouse);
       }
       if (mounted) Navigator.pop(context);
     } catch (e) {

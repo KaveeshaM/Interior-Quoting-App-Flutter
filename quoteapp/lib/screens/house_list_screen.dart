@@ -6,6 +6,48 @@ import 'edit_house_screen.dart';
 class HouseListScreen extends StatelessWidget {
   const HouseListScreen({super.key});
 
+  Future<void> _confirmDelete(
+    BuildContext context,
+    String houseId,
+    String houseName,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete House'),
+        content: Text('Are you sure you want to delete "$houseName"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        await Provider.of<HouseProvider>(
+          context,
+          listen: false,
+        ).deleteHouse(houseId);
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('House deleted successfully')),
+        );
+      } catch (e) {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Failed to delete house')));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<HouseProvider>(
@@ -36,6 +78,33 @@ class HouseListScreen extends StatelessWidget {
                               : house.customerName,
                         ),
                         subtitle: Text(house.address),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Edit button
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        EditHouseScreen(house: house),
+                                  ),
+                                );
+                              },
+                            ),
+                            // Delete button
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _confirmDelete(
+                                context,
+                                house.id,
+                                house.customerName,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
