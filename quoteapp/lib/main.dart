@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:provider/provider.dart';
+import 'screens/house_list_screen.dart';
+import 'providers/house_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,14 +18,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Quote App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 1, 12, 82),
+    return MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => HouseProvider())],
+      child: MaterialApp(
+        title: 'Quote App',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 1, 12, 82),
+          ),
         ),
+        home: const MyHomePage(),
       ),
-      home: const MyHomePage(),
     );
   }
 }
@@ -42,31 +48,24 @@ class MyHomePage extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () {
-                // Action for Button 1
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const HouseListScreen(),
+                  ),
+                );
               },
               child: const Text('House List'),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {
-                // Action for Button 2
-              },
+              onPressed: () {},
               child: const Text('On going Activities'),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Action for Button 3
-              },
-              child: const Text('Product List'),
-            ),
+            ElevatedButton(onPressed: () {}, child: const Text('Product List')),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Action for Button 4
-              },
-              child: const Text('Settings'),
-            ),
+            ElevatedButton(onPressed: () {}, child: const Text('Settings')),
           ],
         ),
       ),
