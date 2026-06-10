@@ -4,6 +4,7 @@ import 'firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'screens/house_list_screen.dart';
 import 'providers/house_provider.dart';
+import 'providers/room_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +20,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => HouseProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => HouseProvider()),
+        ChangeNotifierProvider(create: (_) => RoomProvider()),
+      ],
+
       child: MaterialApp(
         title: 'Quote App',
         theme: ThemeData(

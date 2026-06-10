@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/house_provider.dart';
 import 'edit_house_screen.dart';
+import 'room_list_screen.dart';
 
 class HouseListScreen extends StatelessWidget {
   const HouseListScreen({super.key});
@@ -105,6 +106,15 @@ class HouseListScreen extends StatelessWidget {
                             ),
                           ],
                         ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  RoomListScreen(house: house),
+                            ),
+                          );
+                        },
                       ),
                     );
                   },

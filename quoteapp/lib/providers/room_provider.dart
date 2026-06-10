@@ -1,0 +1,72 @@
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/room.dart';
+
+class RoomProvider extends ChangeNotifier {
+  final CollectionReference _roomsCollection = FirebaseFirestore.instance
+      .collection('rooms');
+
+  List<Room> _rooms = [];
+  List<Room> get rooms => _rooms;
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  String? _currentHouseId;
+
+  Future<void> fetchRooms(String houseId) async {
+    _currentHouseId = houseId;
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final snapshot = await _roomsCollection
+          .where('houseId', isEqualTo: houseId)
+          .get();
+      _rooms = snapshot.docs.map((doc) => Room.fromFirestore(doc)).toList();
+    } catch (e) {
+      debugPrint('Error fetching rooms: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> addRoom({
+    required String houseId,
+    required String name,
+    String? notes,
+  }) async {
+    try {
+      await _roomsCollection.add({
+        'houseId': houseId,
+        'name': name,
+        'notes': notes,
+      });
+      await fetchRooms(houseId);
+    } catch (e) {
+      debugPrint('Error adding room: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> updateRoom(Room room) async {
+    try {
+      await _roomsCollection.doc(room.id).update(room.toMap());
+      await fetchRooms(room.houseId);
+    } catch (e) {
+      debugPrint('Error updating room: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> deleteRoom(String roomId, String houseId) async {
+    try {
+      await _roomsCollection.doc(roomId).delete();
+      await fetchRooms(houseId);
+    } catch (e) {
+      debugPrint('Error deleting room: $e');
+      rethrow;
+    }
+  }
+}
