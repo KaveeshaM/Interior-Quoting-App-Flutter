@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/house.dart';
 import '../providers/room_provider.dart';
 import 'edit_room_screen.dart';
+import 'room_items_screen.dart';
 
 class RoomListScreen extends StatefulWidget {
   final House house;
@@ -82,9 +83,9 @@ class _RoomListScreenState extends State<RoomListScreen> {
                   child: ListTile(
                     leading: const Icon(Icons.meeting_room),
                     title: Text(room.name),
-                    subtitle: room.notes != null && room.notes!.isNotEmpty
-                        ? Text(room.notes!)
-                        : null,
+                    subtitle: Text(
+                      'Notes: ${room.notes != null ? '\n${room.notes}' : ''}',
+                    ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -108,6 +109,14 @@ class _RoomListScreenState extends State<RoomListScreen> {
                         ),
                       ],
                     ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RoomItemsScreen(room: room),
+                        ),
+                      );
+                    },
                   ),
                 );
               },

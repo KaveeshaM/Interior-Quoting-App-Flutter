@@ -12,10 +12,7 @@ class RoomProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  String? _currentHouseId;
-
   Future<void> fetchRooms(String houseId) async {
-    _currentHouseId = houseId;
     _isLoading = true;
     notifyListeners();
 
