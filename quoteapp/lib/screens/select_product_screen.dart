@@ -6,12 +6,14 @@ import '../providers/product_provider.dart';
 class SelectProductScreen extends StatefulWidget {
   final String currentProductId;
   final String? currentColour;
+  final String? category; // 'window' or 'floor'
   final Function(Product, String) onProductSelected;
 
   const SelectProductScreen({
     super.key,
     required this.currentProductId,
-    required this.currentColour,
+    this.currentColour,
+    this.category,
     required this.onProductSelected,
   });
 
@@ -24,7 +26,10 @@ class _SelectProductScreenState extends State<SelectProductScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ProductProvider>(context, listen: false).fetchProducts();
+      Provider.of<ProductProvider>(
+        context,
+        listen: false,
+      ).fetchProducts(category: widget.category);
     });
   }
 
@@ -33,13 +38,33 @@ class _SelectProductScreenState extends State<SelectProductScreen> {
     final productProvider = Provider.of<ProductProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Select Product')),
+      appBar: AppBar(
+        title: Text(
+          widget.category == 'window'
+              ? 'Select Window Product'
+              : 'Select Floor Product',
+        ),
+      ),
       body: productProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : productProvider.error != null
           ? Center(child: Text('Error: ${productProvider.error}'))
           : productProvider.products.isEmpty
-          ? const Center(child: Text('No products available'))
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('No products available for this category'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      productProvider.fetchProducts(category: widget.category);
+                    },
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            )
           : ListView.builder(
               itemCount: productProvider.products.length,
               itemBuilder: (context, index) {
@@ -56,7 +81,7 @@ class _SelectProductScreenState extends State<SelectProductScreen> {
                             ? Image.network(
                                 product.imageUrl,
                                 fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) =>
+                                errorBuilder: (_, __, ___) =>
                                     const Icon(Icons.broken_image),
                               )
                             : const Icon(Icons.image),

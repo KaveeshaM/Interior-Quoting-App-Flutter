@@ -11,13 +11,21 @@ class ProductProvider extends ChangeNotifier {
   String? _error;
   String? get error => _error;
 
-  Future<void> fetchProducts() async {
+  Future<void> fetchProducts({String? category}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final url = Uri.parse('https://utasbot.dev/kit305_2026/product');
+      Uri url;
+      if (category != null && category.isNotEmpty) {
+        url = Uri.parse(
+          'https://utasbot.dev/kit305_2026/product?category=$category',
+        );
+      } else {
+        url = Uri.parse('https://utasbot.dev/kit305_2026/product');
+      }
+
       final response = await http.get(url);
 
       if (response.statusCode == 200) {

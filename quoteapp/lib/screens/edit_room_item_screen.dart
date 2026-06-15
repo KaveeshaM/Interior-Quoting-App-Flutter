@@ -47,6 +47,7 @@ class _EditRoomItemScreenState extends State<EditRoomItemScreen> {
     );
     _selectedProductId = widget.existingItem?.productId;
     _selectedColour = widget.existingItem?.selectedColour;
+
     if (_selectedProductId != null && _selectedProductId!.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _loadSelectedProduct();
@@ -63,12 +64,14 @@ class _EditRoomItemScreenState extends State<EditRoomItemScreen> {
   }
 
   Future<void> _loadSelectedProduct() async {
-    final provider = Provider.of<ProductProvider>(context, listen: false);
-    final product = await provider.fetchProductById(_selectedProductId!);
-    if (mounted) {
-      setState(() {
-        _selectedProduct = product;
-      });
+    if (_selectedProductId != null && _selectedProductId!.isNotEmpty) {
+      final provider = Provider.of<ProductProvider>(context, listen: false);
+      final product = await provider.fetchProductById(_selectedProductId!);
+      if (mounted && product != null) {
+        setState(() {
+          _selectedProduct = product;
+        });
+      }
     }
   }
 
@@ -79,6 +82,7 @@ class _EditRoomItemScreenState extends State<EditRoomItemScreen> {
         builder: (context) => SelectProductScreen(
           currentProductId: _selectedProductId ?? '',
           currentColour: _selectedColour,
+          category: _type,
           onProductSelected: (product, colour) {
             setState(() {
               _selectedProductId = product.id;
