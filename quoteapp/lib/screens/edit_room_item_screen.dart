@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/room_item.dart';
 import '../providers/room_item_provider.dart';
+import '../models/product.dart';
+import '../screens/select_product_screen.dart';
+import '../providers/product_provider.dart';
 
 class EditRoomItemScreen extends StatefulWidget {
   final String roomId;
@@ -26,6 +29,9 @@ class _EditRoomItemScreenState extends State<EditRoomItemScreen> {
   late TextEditingController _heightController;
   final _formKey = GlobalKey<FormState>();
   bool _isSaving = false;
+  String? _selectedProductId;
+  String? _selectedColour;
+  Product? _selectedProduct;
 
   @override
   void initState() {
@@ -39,6 +45,13 @@ class _EditRoomItemScreenState extends State<EditRoomItemScreen> {
     _heightController = TextEditingController(
       text: existing?.heightMm.toString() ?? '',
     );
+    _selectedProductId = widget.existingItem?.productId;
+    _selectedColour = widget.existingItem?.selectedColour;
+    if (_selectedProductId != null && _selectedProductId!.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadSelectedProduct();
+      });
+    }
   }
 
   @override
@@ -47,6 +60,35 @@ class _EditRoomItemScreenState extends State<EditRoomItemScreen> {
     _widthController.dispose();
     _heightController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadSelectedProduct() async {
+    final provider = Provider.of<ProductProvider>(context, listen: false);
+    final product = await provider.fetchProductById(_selectedProductId!);
+    if (mounted) {
+      setState(() {
+        _selectedProduct = product;
+      });
+    }
+  }
+
+  void _selectProduct() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SelectProductScreen(
+          currentProductId: _selectedProductId ?? '',
+          currentColour: _selectedColour,
+          onProductSelected: (product, colour) {
+            setState(() {
+              _selectedProductId = product.id;
+              _selectedColour = colour;
+              _selectedProduct = product;
+            });
+          },
+        ),
+      ),
+    );
   }
 
   Future<void> _save() async {
@@ -59,16 +101,17 @@ class _EditRoomItemScreenState extends State<EditRoomItemScreen> {
       final provider = Provider.of<RoomItemProvider>(context, listen: false);
 
       if (widget.existingItem == null) {
-        // Add mode
+        // Add
         await provider.addItem(
           roomId: widget.roomId,
           type: _type,
           name: _type == 'window' ? _nameController.text.trim() : null,
           widthMm: width,
           heightMm: height,
+          productId: _selectedProductId,
         );
       } else {
-        // Edit mode
+        // Edit
         final updated = RoomItem(
           id: widget.existingItem!.id,
           roomId: widget.roomId,
@@ -76,6 +119,7 @@ class _EditRoomItemScreenState extends State<EditRoomItemScreen> {
           name: _type == 'window' ? _nameController.text.trim() : null,
           widthMm: width,
           heightMm: height,
+          productId: _selectedProductId,
         );
         await provider.updateItem(updated);
       }
@@ -141,6 +185,42 @@ class _EditRoomItemScreenState extends State<EditRoomItemScreen> {
                 validator: (v) =>
                     v == null || v.isEmpty ? 'Enter height' : null,
               ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _selectedProductId != null
+                          ? 'Product selected'
+                          : 'No product selected',
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: _selectProduct,
+                    child: const Text('Select Product'),
+                  ),
+                ],
+              ),
+              if (_selectedProduct != null) ...[
+                const SizedBox(height: 12),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _selectedProduct!.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          'Price: ${_selectedProduct!.pricePerSqm.toStringAsFixed(2)} AUD/m²',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: _isSaving ? null : _save,

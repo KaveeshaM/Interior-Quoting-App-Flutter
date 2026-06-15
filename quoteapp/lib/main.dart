@@ -6,6 +6,7 @@ import 'screens/house_list_screen.dart';
 import 'providers/house_provider.dart';
 import 'providers/room_provider.dart';
 import 'providers/room_item_provider.dart';
+import 'providers/product_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => HouseProvider()),
         ChangeNotifierProvider(create: (_) => RoomProvider()),
         ChangeNotifierProvider(create: (_) => RoomItemProvider()),
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
       ],
 
       child: MaterialApp(

@@ -7,6 +7,8 @@ class RoomItem {
   final String? name;
   final int widthMm;
   final int heightMm;
+  final String? productId;
+  final String? selectedColour;
 
   RoomItem({
     required this.id,
@@ -15,6 +17,8 @@ class RoomItem {
     this.name,
     required this.widthMm,
     required this.heightMm,
+    this.productId,
+    this.selectedColour,
   });
 
   factory RoomItem.fromFirestore(DocumentSnapshot doc) {
@@ -26,6 +30,8 @@ class RoomItem {
       name: data['name'],
       widthMm: data['widthMm'] ?? 0,
       heightMm: data['heightMm'] ?? 0,
+      productId: data['productId'],
+      selectedColour: data['selectedColour'],
     );
   }
 
@@ -36,6 +42,8 @@ class RoomItem {
       'name': name,
       'widthMm': widthMm,
       'heightMm': heightMm,
+      'productId': productId,
+      'selectedColour': selectedColour,
     };
   }
 }

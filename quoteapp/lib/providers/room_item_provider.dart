@@ -32,20 +32,34 @@ class RoomItemProvider extends ChangeNotifier {
     String? name,
     required int widthMm,
     required int heightMm,
+    String? productId,
+    String? selectedColour,
   }) async {
-    await _itemsCollection.add({
-      'roomId': roomId,
-      'type': type,
-      'name': name,
-      'widthMm': widthMm,
-      'heightMm': heightMm,
-    });
-    await fetchItems(roomId);
+    try {
+      await _itemsCollection.add({
+        'roomId': roomId,
+        'type': type,
+        'name': name,
+        'widthMm': widthMm,
+        'heightMm': heightMm,
+        'productId': productId,
+        'selectedColour': selectedColour,
+      });
+      await fetchItems(roomId);
+    } catch (e) {
+      debugPrint('Error adding room item: $e');
+      rethrow;
+    }
   }
 
   Future<void> updateItem(RoomItem item) async {
-    await _itemsCollection.doc(item.id).update(item.toMap());
-    await fetchItems(item.roomId);
+    try {
+      await _itemsCollection.doc(item.id).update(item.toMap());
+      await fetchItems(item.roomId);
+    } catch (e) {
+      debugPrint('Error updating room item: $e');
+      rethrow;
+    }
   }
 
   Future<void> deleteItem(String itemId, String roomId) async {
