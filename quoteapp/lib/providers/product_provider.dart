@@ -40,7 +40,7 @@ class ProductProvider extends ChangeNotifier {
       } else {
         _error = 'Failed to load products: ${response.statusCode}';
       }
-    } catch (e, stack) {
+    } catch (e) {
       _error = 'Network error: $e';
     } finally {
       _isLoading = false;

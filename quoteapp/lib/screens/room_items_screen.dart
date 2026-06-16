@@ -93,6 +93,32 @@ class _RoomItemsScreenState extends State<RoomItemsScreen> {
     }
   }
 
+  Future<void> _duplicateItem(RoomItem item) async {
+    try {
+      final provider = Provider.of<RoomItemProvider>(context, listen: false);
+      String newName = '${item.name} copy';
+
+      await provider.addItem(
+        roomId: widget.room.id,
+        type: item.type,
+        name: newName,
+        widthMm: item.widthMm,
+        heightMm: item.heightMm,
+        productId: item.productId,
+        selectedColour: item.selectedColour,
+      );
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Item duplicated')));
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to duplicate item')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<RoomItemProvider>(context);
@@ -161,6 +187,13 @@ class _RoomItemsScreenState extends State<RoomItemsScreen> {
                                   color: Colors.blue,
                                 ),
                                 onPressed: () => _editItem(f),
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.copy,
+                                  color: Colors.green,
+                                ),
+                                onPressed: () => _duplicateItem(f),
                               ),
                               IconButton(
                                 icon: const Icon(
