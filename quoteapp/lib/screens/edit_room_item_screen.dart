@@ -84,6 +84,16 @@ class _EditRoomItemScreenState extends State<EditRoomItemScreen> {
           currentColour: _selectedColour,
           category: _type,
           onProductSelected: (product, colour) {
+            if (_type == 'window') {
+              final int width = int.tryParse(_widthController.text.trim()) ?? 0;
+              final error = validateWindowProduct(width, product);
+              if (error != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(error), backgroundColor: Colors.red),
+                );
+                return;
+              }
+            }
             setState(() {
               _selectedProductId = product.id;
               _selectedColour = colour;
@@ -103,6 +113,17 @@ class _EditRoomItemScreenState extends State<EditRoomItemScreen> {
       final width = int.parse(_widthController.text.trim());
       final height = int.parse(_heightController.text.trim());
       final provider = Provider.of<RoomItemProvider>(context, listen: false);
+
+      if (_type == 'window' && _selectedProduct != null) {
+        final error = validateWindowProduct(width, _selectedProduct!);
+        if (error != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error), backgroundColor: Colors.red),
+          );
+          setState(() => _isSaving = false);
+          return;
+        }
+      }
 
       if (widget.existingItem == null) {
         // Add
@@ -137,6 +158,40 @@ class _EditRoomItemScreenState extends State<EditRoomItemScreen> {
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
+  }
+
+  String? validateWindowProduct(int windowWidthMm, Product product) {
+    if (product.minWidth == null && product.maxWidth == null) return null;
+
+    // maxPanels == null or 1
+    final int maxPanels = product.maxPanels ?? 1;
+
+    // fit within range
+    if (windowWidthMm >= (product.minWidth ?? 0) &&
+        windowWidthMm <= (product.maxWidth ?? double.infinity)) {
+      return null;
+    }
+    // oversize panel – not allowed
+    if (maxPanels == 1) {
+      return 'Width exceeds maximum width for this product.';
+    }
+
+    // Multi-panel
+    for (int n = 1; n <= maxPanels; n++) {
+      double panelWidth = windowWidthMm / n;
+      if (panelWidth >= (product.minWidth ?? 0) &&
+          panelWidth <= (product.maxWidth ?? double.infinity)) {
+        return null;
+      }
+    }
+
+    if (product.minWidth != null &&
+        product.maxWidth != null &&
+        product.minWidth == product.maxWidth) {
+      return 'This product requires panels of exactly ${product.minWidth}mm. ';
+    }
+
+    return 'Width does not fit within product.';
   }
 
   @override
