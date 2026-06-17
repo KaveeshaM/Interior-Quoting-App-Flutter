@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../models/house.dart';
 import '../models/room.dart';
 import '../models/room_item.dart';
@@ -27,6 +29,7 @@ class QuoteScreenState extends State<QuoteScreen> {
   static const double windowCostPerM2 = 50.0;
   static const double floorCostPerM2 = 100.0;
   static const double labourCostPerRoom = 200.0;
+  final GlobalKey _shareButtonKey = GlobalKey();
 
   @override
   void initState() {
@@ -114,6 +117,135 @@ class QuoteScreenState extends State<QuoteScreen> {
     });
   }
 
+  String _buildQuoteText() {
+    final buffer = StringBuffer();
+    buffer.writeln('QUOTE FOR ${widget.house.customerName.toUpperCase()}');
+    buffer.writeln('=' * 40);
+    buffer.writeln();
+
+    // Count selected items across all rooms to show if none
+    int totalSelectedItems = 0;
+
+    // Iterate over each room
+    for (final room in rooms) {
+      final allItems = itemsByRoom[room.id] ?? [];
+      // Filter to only selected items
+      final selectedItems = allItems
+          .where((item) => selectedItemIds[item.id] ?? false)
+          .toList();
+      if (selectedItems.isEmpty) continue; // skip rooms with no selected items
+
+      totalSelectedItems += selectedItems.length;
+
+      final windowsCost = calculateWindowsCostForRoom(allItems);
+      final floorsCost = calculateFloorsCostForRoom(allItems);
+      final roomTotal = windowsCost + floorsCost;
+
+      buffer.writeln('${room.name}');
+      buffer.writeln('-' * 30);
+
+      // List selected items
+      for (final item in selectedItems) {
+        final isWindow = item.type == 'window';
+        final itemName = isWindow ? (item.name ?? 'Window') : 'Floor Space';
+        buffer.writeln('  O $itemName');
+        buffer.writeln(
+          '    Dimensions: ${item.widthMm}mm x ${item.heightMm}mm',
+        );
+        if (item.productId != null && item.productId!.isNotEmpty) {
+          buffer.writeln('    Product: ${item.productId}');
+          if (item.selectedColour != null && item.selectedColour!.isNotEmpty) {
+            buffer.writeln('    Colour: ${item.selectedColour}');
+          }
+        }
+      }
+
+      buffer.writeln();
+      buffer.writeln('  Windows cost:   ${windowsCost.toStringAsFixed(2)} AUD');
+      buffer.writeln(
+        '  Floor spaces cost: ${floorsCost.toStringAsFixed(2)} AUD',
+      );
+      buffer.writeln('  Room total:     ${roomTotal.toStringAsFixed(2)} AUD');
+      buffer.writeln();
+    }
+
+    // If no items selected, show a message
+    if (totalSelectedItems == 0) {
+      buffer.writeln('No items selected for this quote.');
+      buffer.writeln('Please select at least one window or floor space.');
+      return buffer.toString();
+    }
+
+    // Calculate totals (based on selected items only)
+    final selectedRoomsCount = rooms
+        .where((room) => selectedRoomIds[room.id] ?? false)
+        .length;
+    final labourTotal = selectedRoomsCount * labourCostPerRoom;
+    final roomsSubtotal = rooms.fold<double>(0, (sum, room) {
+      final items = itemsByRoom[room.id] ?? [];
+      return sum + calculateRoomTotal(items);
+    });
+    final houseTotal = roomsSubtotal + labourTotal;
+
+    buffer.writeln('=' * 40);
+    buffer.writeln('SUMMARY');
+    buffer.writeln('-' * 30);
+    buffer.writeln('Subtotal (rooms): ${roomsSubtotal.toStringAsFixed(2)} AUD');
+    buffer.writeln(
+      'Labour (${selectedRoomsCount} room${selectedRoomsCount != 1 ? 's' : ''}): ${labourTotal.toStringAsFixed(2)} AUD',
+    );
+    buffer.writeln('-' * 30);
+    buffer.writeln('HOUSE TOTAL: ${houseTotal.toStringAsFixed(2)} AUD');
+    buffer.writeln('=' * 40);
+    buffer.writeln();
+
+    return buffer.toString();
+  }
+
+  Future<void> _shareQuote() async {
+    final quoteText = _buildQuoteText();
+
+    final RenderBox? box =
+        _shareButtonKey.currentContext?.findRenderObject() as RenderBox?;
+    Rect rect = Rect.zero;
+    if (box != null) {
+      final position = box.localToGlobal(Offset.zero);
+      final size = box.size;
+      rect = Rect.fromLTWH(position.dx, position.dy, size.width, size.height);
+    }
+
+    try {
+      await Share.share(
+        quoteText,
+        subject: 'Quote for ${widget.house.customerName}',
+        sharePositionOrigin: rect,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Quote shared successfully')),
+        );
+      }
+    } catch (e) {
+      print('Share error: $e');
+      try {
+        await Clipboard.setData(ClipboardData(text: quoteText));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Quote copied to clipboard (share failed)'),
+            ),
+          );
+        }
+      } catch (clipError) {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Share failed: $e')));
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Labour total
@@ -129,7 +261,17 @@ class QuoteScreenState extends State<QuoteScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(title: Text('Quote for ${widget.house.customerName}')),
+      appBar: AppBar(
+        title: Text('Quote for ${widget.house.customerName}'),
+        actions: [
+          IconButton(
+            key: _shareButtonKey,
+            icon: const Icon(Icons.share),
+            onPressed: _shareQuote,
+            tooltip: 'Share Quote',
+          ),
+        ],
+      ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : error != null
