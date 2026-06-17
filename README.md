@@ -44,4 +44,4 @@ ios 26.4
 >> Include - Set product to the room when select **Set** button
 
 
-## custom feature duplicate functionality in room item
+## custom feature --> duplicate functionality in room item
