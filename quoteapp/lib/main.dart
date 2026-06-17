@@ -44,6 +44,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,26 +56,60 @@ class MyHomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const HouseListScreen(),
-                  ),
-                );
-              },
-              child: const Text('House List'),
+            SizedBox(
+              width: 200,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 3, 4, 87),
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const HouseListScreen(),
+                    ),
+                  );
+                },
+                child: const Text('House List'),
+              ),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {},
-              child: const Text('On going Activities'),
+            SizedBox(
+              width: 200,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 3, 4, 87),
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('On going Activities'),
+              ),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(onPressed: () {}, child: const Text('Product List')),
+            SizedBox(
+              width: 200,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 3, 4, 87),
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () {},
+                child: const Text('Product List'),
+              ),
+            ),
             const SizedBox(height: 16),
-            ElevatedButton(onPressed: () {}, child: const Text('Settings')),
+            SizedBox(
+              width: 200,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 3, 4, 87),
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () {},
+                child: const Text('Settings'),
+              ),
+            ),
           ],
         ),
       ),
