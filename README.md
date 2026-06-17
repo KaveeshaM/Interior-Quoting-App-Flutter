@@ -6,8 +6,76 @@ ios 26.4
 
 
 ## A list of references used in assignment:
+####flutter and firebase setup
+> https://chatgpt.com/share/6a24d2a4-4448-83ec-92d0-242a4b4ef8c3
+> https://www.youtube.com/watch?v=wxY3Brn0SRY
+> https://fluttermapp.com
+> https://medium.com/@lumeilin301/flutter-firebase-app-tutorial-part-1-get-started-95cce84939c3\n
+> https://share.google/aimode/50I4sUPCGoHLWk4M5
+> https://dart.dev/tools/pub/cmd/pub-outdated
+> https://chatgpt.com/share/6a275fcc-8bcc-83ec-b9ab-3252571ea951
+> https://www.youtube.com/watch?v=1ukSR1GRtMU&list=PL4cUxeGkcC9jLYyp2Aoh6hcWuxFDX6PBJ
 
 
+####Icon serach - https://fonts.google.com/icons?selected=Material+Icons:library_add:&icon.query=add&icon.size=24&icon.color=%23e3e3e3
+
+####development help
+> all tutorial videos in KIT721 
+> https://stackoverflow.com/posts/73180646/revisions
+> https://pub.dev/packages/share_plus
+> https://www.codecademy.com/article/rest-api-in-flutter
+> https://docs.flutter.dev
+
+## third-party plugins used
+1.cupertino_icons 
+
+Link: https://pub.dev/packages/cupertino_icons
+Author: Flutter Team
+Usage: Provides iOS-style icons used throughout the app for a consistent look.
+
+2. firebase_core
+
+Link: https://pub.dev/packages/firebase_core
+Author: Flutter Team 
+Usage: Initialises the Firebase app, enabling all Firebase services (Firestore, Storage, Auth) throughout the application.
+
+
+3. cloud_firestore 
+
+Link: https://pub.dev/packages/cloud_firestore
+Author: Flutter Team 
+Usage: Stores and retrieves all application data, including houses, rooms, and room items, from the Firebase Firestore database.
+
+
+4. firebase_auth (v6.5.2)
+
+Link: https://pub.dev/packages/firebase_auth
+Author: Flutter Team
+Usage: Handles user authentication for securing Firebase operations.
+
+5. provider
+   
+Link: https://pub.dev/packages/provider
+Author: Remi Rousselet
+Usage: Serves as the state management solution for the entire app, managing HouseProvider, RoomProvider, RoomItemProvider, and ProductProvider.
+
+6. http 
+
+Link: https://pub.dev/packages/http
+Author: Dart Team
+Usage: Fetches product data from the external product API (https://utasbot.dev/kit305_2026/product) to populate the product selection screen.
+
+7. share_plus 
+
+Link: https://pub.dev/packages/share_plus
+Author: Baseflow
+Usage: Shares the itemised quote as plain text using the device's native share dialog 
+
+8. image_picker 
+
+Link: https://pub.dev/packages/image_picker
+Author: Flutter Team (Google)
+Usage: Allows users to pick images from the device's gallery when adding or editing a room.
 
 ## A list of screens app has, and a brief description of how these interrelate
 
