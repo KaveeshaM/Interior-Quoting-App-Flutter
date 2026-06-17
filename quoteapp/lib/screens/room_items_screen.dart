@@ -139,13 +139,19 @@ class _RoomItemsScreenState extends State<RoomItemsScreen> {
                   onPressed: () => _addItem('window'),
                   icon: const Icon(Icons.window),
                   label: const Text('Add Window'),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
                 ElevatedButton.icon(
                   onPressed: () => _addItem('floor'),
                   icon: const Icon(Icons.square_foot),
                   label: const Text('Add Floor space'),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ],
             ),

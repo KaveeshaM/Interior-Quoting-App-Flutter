@@ -87,7 +87,10 @@ class RoomListScreenState extends State<RoomListScreen> {
                   },
                   icon: const Icon(Icons.library_add),
                   label: const Text('Add Room'),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
                 ElevatedButton.icon(
                   onPressed: () {
@@ -100,7 +103,10 @@ class RoomListScreenState extends State<RoomListScreen> {
                   },
                   icon: const Icon(Icons.receipt),
                   label: const Text('Get Quote'),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ],
             ),

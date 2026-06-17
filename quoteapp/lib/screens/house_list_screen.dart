@@ -60,75 +60,100 @@ class HouseListScreen extends StatelessWidget {
         }
         return Scaffold(
           appBar: AppBar(title: const Text('Customers House List')),
-          body: provider.isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  itemCount: provider.houses.length,
-                  itemBuilder: (context, index) {
-                    final house = provider.houses[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
+          body: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EditHouseScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add House'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        foregroundColor: Colors.white,
                       ),
-                      child: ListTile(
-                        leading: const Icon(Icons.house),
-                        title: Text(
-                          house.nickname.isNotEmpty
-                              ? '${house.customerName} (“${house.nickname}”)'
-                              : house.customerName,
-                        ),
-                        subtitle: Text(house.address),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Edit button
-                            IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.blue),
-                              onPressed: () {
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(),
+              // House list
+              Expanded(
+                child: provider.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                        itemCount: provider.houses.length,
+                        itemBuilder: (context, index) {
+                          final house = provider.houses[index];
+                          return Card(
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            child: ListTile(
+                              leading: const Icon(Icons.house),
+                              title: Text(
+                                house.nickname.isNotEmpty
+                                    ? '${house.customerName} (“${house.nickname}”)'
+                                    : house.customerName,
+                              ),
+                              subtitle: Text(house.address),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.edit,
+                                      color: Colors.blue,
+                                    ),
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              EditHouseScreen(house: house),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () => _confirmDelete(
+                                      context,
+                                      house.id,
+                                      house.customerName,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        EditHouseScreen(house: house),
+                                        RoomListScreen(house: house),
                                   ),
                                 );
                               },
                             ),
-                            // Delete button
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => _confirmDelete(
-                                context,
-                                house.id,
-                                house.customerName,
-                              ),
-                            ),
-                          ],
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  RoomListScreen(house: house),
-                            ),
                           );
                         },
                       ),
-                    );
-                  },
-                ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const EditHouseScreen(),
-                ),
-              );
-            },
-            child: const Icon(Icons.add),
+              ),
+            ],
           ),
         );
       },
