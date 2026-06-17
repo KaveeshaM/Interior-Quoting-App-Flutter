@@ -73,7 +73,6 @@ class HouseProvider extends ChangeNotifier {
       await _housesCollection.doc(houseId).delete();
       await fetchHouses(); // refresh the list
     } catch (e) {
-      debugPrint('Error deleting house: $e');
       rethrow;
     } finally {
       _isLoading = false;

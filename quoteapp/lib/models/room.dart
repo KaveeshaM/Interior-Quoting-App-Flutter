@@ -5,12 +5,14 @@ class Room {
   final String houseId;
   final String name;
   final String? notes;
+  final String? imageUrl;
 
   Room({
     required this.id,
     required this.houseId,
     required this.name,
     this.notes,
+    this.imageUrl,
   });
 
   factory Room.fromFirestore(DocumentSnapshot doc) {
@@ -20,10 +22,16 @@ class Room {
       houseId: data['houseId'] ?? '',
       name: data['name'] ?? '',
       notes: data['notes'],
+      imageUrl: data['imageUrl'],
     );
   }
 
   Map<String, dynamic> toMap() {
-    return {'houseId': houseId, 'name': name, 'notes': notes};
+    return {
+      'houseId': houseId,
+      'name': name,
+      'notes': notes,
+      'imageUrl': imageUrl,
+    };
   }
 }

@@ -123,17 +123,15 @@ class QuoteScreenState extends State<QuoteScreen> {
     buffer.writeln('=' * 40);
     buffer.writeln();
 
-    // Count selected items across all rooms to show if none
     int totalSelectedItems = 0;
 
-    // Iterate over each room
     for (final room in rooms) {
       final allItems = itemsByRoom[room.id] ?? [];
-      // Filter to only selected items
+      // selected items
       final selectedItems = allItems
           .where((item) => selectedItemIds[item.id] ?? false)
           .toList();
-      if (selectedItems.isEmpty) continue; // skip rooms with no selected items
+      if (selectedItems.isEmpty) continue;
 
       totalSelectedItems += selectedItems.length;
 
@@ -148,7 +146,7 @@ class QuoteScreenState extends State<QuoteScreen> {
       for (final item in selectedItems) {
         final isWindow = item.type == 'window';
         final itemName = isWindow ? (item.name ?? 'Window') : 'Floor Space';
-        buffer.writeln('  O $itemName');
+        buffer.writeln(' --> $itemName');
         buffer.writeln(
           '    Dimensions: ${item.widthMm}mm x ${item.heightMm}mm',
         );
@@ -169,14 +167,14 @@ class QuoteScreenState extends State<QuoteScreen> {
       buffer.writeln();
     }
 
-    // If no items selected, show a message
+    // If no items selected
     if (totalSelectedItems == 0) {
       buffer.writeln('No items selected for this quote.');
       buffer.writeln('Please select at least one window or floor space.');
       return buffer.toString();
     }
 
-    // Calculate totals (based on selected items only)
+    // Calculate totals
     final selectedRoomsCount = rooms
         .where((room) => selectedRoomIds[room.id] ?? false)
         .length;

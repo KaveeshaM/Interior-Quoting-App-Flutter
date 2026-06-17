@@ -33,28 +33,20 @@ class RoomProvider extends ChangeNotifier {
     required String houseId,
     required String name,
     String? notes,
+    String? imageUrl,
   }) async {
-    try {
-      await _roomsCollection.add({
-        'houseId': houseId,
-        'name': name,
-        'notes': notes,
-      });
-      await fetchRooms(houseId);
-    } catch (e) {
-      debugPrint('Error adding room: $e');
-      rethrow;
-    }
+    await _roomsCollection.add({
+      'houseId': houseId,
+      'name': name,
+      'notes': notes,
+      'imageUrl': imageUrl,
+    });
+    await fetchRooms(houseId);
   }
 
   Future<void> updateRoom(Room room) async {
-    try {
-      await _roomsCollection.doc(room.id).update(room.toMap());
-      await fetchRooms(room.houseId);
-    } catch (e) {
-      debugPrint('Error updating room: $e');
-      rethrow;
-    }
+    await _roomsCollection.doc(room.id).update(room.toMap());
+    await fetchRooms(room.houseId);
   }
 
   Future<void> deleteRoom(String roomId, String houseId) async {
