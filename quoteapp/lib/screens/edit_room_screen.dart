@@ -87,7 +87,6 @@ class _EditRoomScreenState extends State<EditRoomScreen> {
         setState(() => isUploadingImage = false);
       }
       if (finalImageUrl == null) {
-        // Upload failed – show error and abort save (or you could continue without image)
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Image upload failed. Please try again.'),

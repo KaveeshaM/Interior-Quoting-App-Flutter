@@ -5,8 +5,10 @@ import 'package:share_plus/share_plus.dart';
 import '../models/house.dart';
 import '../models/room.dart';
 import '../models/room_item.dart';
+import '../models/product.dart';
 import '../providers/room_provider.dart';
 import '../providers/room_item_provider.dart';
+import '../providers/product_provider.dart';
 
 class QuoteScreen extends StatefulWidget {
   final House house;
@@ -19,15 +21,14 @@ class QuoteScreen extends StatefulWidget {
 class QuoteScreenState extends State<QuoteScreen> {
   List<Room> rooms = [];
   Map<String, List<RoomItem>> itemsByRoom = {};
+  Map<String, Product> productMap = {};
   bool isLoading = true;
   String? error;
 
   // Selection state
-  Map<String, bool> selectedItemIds = {}; // itemId -- selected
-  Map<String, bool> selectedRoomIds = {}; // roomId - selected
+  Map<String, bool> selectedItemIds = {};
+  Map<String, bool> selectedRoomIds = {};
 
-  static const double windowCostPerM2 = 50.0;
-  static const double floorCostPerM2 = 100.0;
   static const double labourCostPerRoom = 200.0;
   final GlobalKey _shareButtonKey = GlobalKey();
 
@@ -41,6 +42,17 @@ class QuoteScreenState extends State<QuoteScreen> {
 
   Future<void> loadQuoteData() async {
     try {
+      // Fetch products first (or use cached data)
+      final productProvider = Provider.of<ProductProvider>(
+        context,
+        listen: false,
+      );
+      if (productProvider.products.isEmpty) {
+        await productProvider.fetchProducts();
+      }
+      productMap = {for (var p in productProvider.products) p.id: p};
+
+      // Fetch rooms and items
       final roomProvider = Provider.of<RoomProvider>(context, listen: false);
       await roomProvider.fetchRooms(widget.house.id);
       final fetchedRooms = List<Room>.from(roomProvider.rooms);
@@ -82,8 +94,11 @@ class QuoteScreenState extends State<QuoteScreen> {
     double total = 0;
     for (var item in items) {
       if (item.type == 'window' && (selectedItemIds[item.id] ?? false)) {
-        double area = calculateArea(item.widthMm, item.heightMm);
-        total += area * windowCostPerM2;
+        final product = productMap[item.productId];
+        if (product != null) {
+          double area = calculateArea(item.widthMm, item.heightMm);
+          total += area * product.pricePerSqm;
+        }
       }
     }
     return total;
@@ -93,8 +108,11 @@ class QuoteScreenState extends State<QuoteScreen> {
     double total = 0;
     for (var item in items) {
       if (item.type == 'floor' && (selectedItemIds[item.id] ?? false)) {
-        double area = calculateArea(item.widthMm, item.heightMm);
-        total += area * floorCostPerM2;
+        final product = productMap[item.productId];
+        if (product != null) {
+          double area = calculateArea(item.widthMm, item.heightMm);
+          total += area * product.pricePerSqm;
+        }
       }
     }
     return total;
@@ -146,15 +164,23 @@ class QuoteScreenState extends State<QuoteScreen> {
       for (final item in selectedItems) {
         final isWindow = item.type == 'window';
         final itemName = isWindow ? (item.name ?? 'Window') : 'Floor Space';
-        buffer.writeln(' --> $itemName');
-        buffer.writeln(
-          '    Dimensions: ${item.widthMm}mm x ${item.heightMm}mm',
-        );
-        if (item.productId != null && item.productId!.isNotEmpty) {
-          buffer.writeln('    Product: ${item.productId}');
-          if (item.selectedColour != null && item.selectedColour!.isNotEmpty) {
-            buffer.writeln('    Colour: ${item.selectedColour}');
-          }
+        final product = item.productId != null
+            ? productMap[item.productId]
+            : null;
+        final productName = product != null
+            ? ' (${product.name})'
+            : ' (no product)';
+        buffer.writeln('  --> $itemName$productName');
+        if (product != null) {
+          buffer.writeln(
+            '    Price/psm: ${product.pricePerSqm.toStringAsFixed(2)} AUD',
+          );
+          final area = calculateArea(item.widthMm, item.heightMm);
+          final cost = area * product.pricePerSqm;
+          buffer.writeln('    Cost: ${cost.toStringAsFixed(2)} AUD');
+        }
+        if (item.selectedColour != null && item.selectedColour!.isNotEmpty) {
+          buffer.writeln('    Colour: ${item.selectedColour}');
         }
       }
 
@@ -316,6 +342,12 @@ class QuoteScreenState extends State<QuoteScreen> {
                             const SizedBox(height: 8),
                             ...items.map((item) {
                               final isWindow = item.type == 'window';
+                              final product = item.productId != null
+                                  ? productMap[item.productId]
+                                  : null;
+                              final productInfo = product != null
+                                  ? '\n${product.name}\n${product.pricePerSqm.toStringAsFixed(2)} AUD/psm'
+                                  : ' (no product)';
                               return CheckboxListTile(
                                 value: selectedItemIds[item.id] ?? false,
                                 onChanged: (_) => toggleItemSelection(item.id),
@@ -323,6 +355,9 @@ class QuoteScreenState extends State<QuoteScreen> {
                                   isWindow
                                       ? (item.name ?? 'Window')
                                       : 'Floor Space',
+                                ),
+                                subtitle: Text(
+                                  '${item.widthMm}mm x ${item.heightMm}mm$productInfo',
                                 ),
                               );
                             }),
